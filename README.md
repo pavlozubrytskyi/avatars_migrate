@@ -1,3 +1,8 @@
+**Repo zip packages**
+
+https://github.com/pavlozubrytskyi/avatars_migrate/archive/refs/tags/current.tar.gz
+https://github.com/pavlozubrytskyi/avatars_migrate/archive/refs/tags/avatars_migrate.zip
+
 **Task description**
 
 Can be found here [TASK_DESCRIPTION.md](TASK_DESCRIPTION.md)
@@ -24,8 +29,8 @@ echo 'export PATH="$PATH:$HOME/.terraform"' >> ~/.bashrc
 **1. Download or clone this repository**
 
 ```
-wget https://github.com/pavlozubrytskyi/avatars_migrate/archive/refs/tags/v1.tar.gz && \
-tar -xzvf v1.tar.gz
+wget https://github.com/pavlozubrytskyi/avatars_migrate/archive/refs/tags/current.tar.gz && \
+tar -xzvf current.tar.gz
 ```
 
 ```
@@ -35,7 +40,7 @@ git clone https://github.com/pavlozubrytskyi/avatars_migrate.git
 **2. Change directory to avatars_migrate script**
 
 ```
-cd avatars_migrate || cd avatars_migrate_v1
+cd avatars_migrate || cd avatars_migrate_current
 ```
 
 **3. Setup your AWS credentials (keys are not active, filled out for example)**
