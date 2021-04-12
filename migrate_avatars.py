@@ -49,7 +49,6 @@ def list_to_copy(src_bucket, dst_bucket):
     except Exception as e:
         raise e
 
-
 # Copy legacy items as is from legacy to prod S3
 def copy_files_to_prodS3(src_bucket, dst_bucket, cpy_list):
     try:
@@ -63,5 +62,15 @@ def copy_files_to_prodS3(src_bucket, dst_bucket, cpy_list):
             s3.copy_object(CopySource=copy_source, Bucket=dst_bucket, Key=file)
             return file
         pool.map(copy_mp, cpy_list)
+    except Exception as e:
+        raise e
+
+# Get list of legacy db records
+def get_legacy_db_records(connection,src_bucket, dst_bucket,path=None):
+    try:
+        cur = connection.cursor()
+        legacy_avatars = cur.execute("select * from avatars where path like '%{}%'".format(path))
+        legacy_avatars_ids = [ id for id,_ in cur.fetchall() ]
+        return legacy_avatars_ids
     except Exception as e:
         raise e
