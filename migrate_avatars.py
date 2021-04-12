@@ -74,3 +74,12 @@ def get_legacy_db_records(connection,src_bucket, dst_bucket,path=None):
         return legacy_avatars_ids
     except Exception as e:
         raise e
+
+
+if __name__ == "__main__":
+
+# Connect to DB
+    try:
+        db_conn = psycopg2.connect(DB_CONN_STRING)
+    except Exception as e:
+        raise e
