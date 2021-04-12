@@ -81,7 +81,7 @@ def move_legacy_names_prodS3(connection,src_bucket, dst_bucket):
         cpy_list = []
         prefix_old = "{}/image/".format(src_bucket)
         prefix_new = "{}/avatar/".format(dst_bucket)
-        src, dst = s3.Bucket(src_bucket), s3.Bucket(dst_bucket)
+        dst = s3.Bucket(dst_bucket)
         for s3_file in dst.objects.filter(Prefix=prefix_old).all():
             cpy_list.append(s3_file.key)
         def move_mp(file_key):
