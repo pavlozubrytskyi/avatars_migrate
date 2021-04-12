@@ -1,7 +1,12 @@
 **Task description**
+
 Can be found here [TASK_DESCRIPTION.md](TASK_DESCRIPTION.md)
 
-**Run the requirements setup to install dependencies (Ubuntu)**
+**Task comments**
+
+Comments from my side [TASK_DESCRIPTION_COMMENTS.md](TASK_DESCRIPTION_COMMENTS.md)
+
+**Run required packages setup to install dependencies (Ubuntu 18.04)**
 
 ```
 sudo apt install -y postgresql-common libpq-dev postgresql-client python3-pip wget unzip; \
@@ -16,7 +21,24 @@ echo 'export PATH="$PATH:$HOME/.terraform"' >> ~/.bashrc
 
 ### Next set of steps have to be performed from the root of this git repo
 
-**1. Setup your AWS credentials (keys are not active, filled out for example)**
+**1. Download or clone this repository**
+
+```
+wget https://github.com/pavlozubrytskyi/avatars_migrate/archive/refs/tags/v1.tar.gz && \
+tar -xzvf v1.tar.gz
+```
+
+```
+git clone https://github.com/pavlozubrytskyi/avatars_migrate.git
+```
+
+**2. Change directory to avatars_migrate script**
+
+```
+cd avatars_migrate || cd avatars_migrate_v1
+```
+
+**3. Setup your AWS credentials (keys are not active, filled out for example)**
 
 ```
 cat > aws_creds.sh <<EOF
@@ -26,7 +48,7 @@ export AWS_DEFAULT_REGION="eu-central-1"
 EOF
 ```
 
-**2. Create resources for testing**
+**4. Create resources for testing**
 
 ```
 source aws_creds.sh; \
@@ -35,20 +57,20 @@ source aws_creds.sh; \
 ( cd resources/production_s3/; terraform init; terraform apply -auto-approve; )
 ```
 
-**3. Configure the environment (your script with a couple of modifications)**
+**5. Configure the environment (your script with a couple of modifications)**
 
 ```
 source aws_creds.sh; python3 setup_environment.py
 ```
 
-**4. Run the migration script**
+**6. Run the migration script**
 
 ```
 source aws_creds.sh; python3 migrate_avatars.py
 ```
 
 
-**5. Destroy resources after testing**
+**7. Destroy resources after testing**
 
 ```
 source aws_creds.sh; \
