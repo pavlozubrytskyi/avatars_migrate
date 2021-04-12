@@ -94,6 +94,8 @@ def move_legacy_names_prodS3(connection,src_bucket, dst_bucket):
             old_db_path = S3_LEGACY_ENDPOINT_URL + '/' + file_key
             new_db_path = S3_PRODUCTION_ENDPOINT_URL + '/' + new_key
             print("UPDATE path SET = '{}' where path like '%{}%'".format(new_db_path,old_db_path))
+            cur.execute("UPDATE avatars SET path = '{}' where path like '%{}%'".format(new_db_path,old_db_path))
+            connection.commit()
             s3.delete_object(Bucket=dst_bucket,Key=file_key)
             s3.delete_object(Bucket=src_bucket,Key=file_key)
             return new_key
