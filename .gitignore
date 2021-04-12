@@ -29,4 +29,4 @@ override.tf.json
 # example: *tfplan*
 #
 # AWS env file
-*aws_creds.sh
+aws_creds.sh
