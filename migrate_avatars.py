@@ -78,7 +78,7 @@ def get_legacy_db_records(connection,src_bucket, dst_bucket,path=None):
 
 if __name__ == "__main__":
 
-# Connect to DB
+# Connect to rds DB
     try:
         db_conn = psycopg2.connect(DB_CONN_STRING)
     except Exception as e:
