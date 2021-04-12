@@ -6,7 +6,7 @@ locals {
   name   = "sketchdb"
   region = "eu-central-1"
   tags = {
-    Owner       = "pzubrytskyi"
+    Owner       = "sketch"
     Environment = "production"
   }
 }
