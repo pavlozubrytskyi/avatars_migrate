@@ -84,8 +84,22 @@ def move_legacy_names_prodS3(connection,src_bucket, dst_bucket):
         src, dst = s3.Bucket(src_bucket), s3.Bucket(dst_bucket)
         for s3_file in dst.objects.filter(Prefix=prefix_old).all():
             cpy_list.append(s3_file.key)
+        def move_mp(file_key):
+            new_key = re.sub(r'%s' % prefix_old, '%s' % prefix_new, file_key)
+            copy_source = {
+                'Bucket': dst_bucket,
+                'Key': file_key
+            }
+            s3.copy_object(CopySource=copy_source, Bucket=dst_bucket, Key=new_key)
+            old_db_path = S3_LEGACY_ENDPOINT_URL + '/' + file_key
+            new_db_path = S3_PRODUCTION_ENDPOINT_URL + '/' + new_key
+            print("UPDATE path SET = '{}' where path like '%{}%'".format(new_db_path,old_db_path))
+
+            return new_key
+        pool.map(move_mp,cpy_list)
     except Exception as e:
         raise e
+
 def main():
     # Connect to rds DB
         try:
