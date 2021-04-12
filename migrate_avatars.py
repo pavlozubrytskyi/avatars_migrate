@@ -132,8 +132,9 @@ def main():
             legacy_avatars_count = len(legacy_avatar_ids)
             if legacy_avatars_count != 0:
                 print("There are {} legacy avatars left to migrate".format(legacy_avatars_count))
-            else:
-                print("All legacy avatars have been already migrated!")
+            move_legacy_names_prodS3(db_conn,S3_LEGACY_BUCKET_NAME,S3_PRODUCTION_BUCKET_NAME)
+        else:
+            print("All legacy avatars have been already migrated!")
         except Exception as e:
             raise e
 
