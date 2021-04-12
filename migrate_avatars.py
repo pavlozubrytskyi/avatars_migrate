@@ -48,3 +48,20 @@ def list_to_copy(src_bucket, dst_bucket):
         return list(set(src_list).difference(dst_list))
     except Exception as e:
         raise e
+
+
+# Copy legacy items as is from legacy to prod S3
+def copy_files_to_prodS3(src_bucket, dst_bucket, cpy_list):
+    try:
+        s3 = boto3.client('s3')
+        pool = ThreadPool(processes=16)
+        def copy_mp(file):
+            copy_source = {
+                'Bucket': src_bucket,
+                'Key': file
+            }
+            s3.copy_object(CopySource=copy_source, Bucket=dst_bucket, Key=file)
+            return file
+        pool.map(copy_mp, cpy_list)
+    except Exception as e:
+        raise e
