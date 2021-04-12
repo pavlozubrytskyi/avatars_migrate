@@ -45,3 +45,7 @@ If you want, you can use the provided database schema and seeding script (python
 ### Extra ball
 
 You can use any S3 and database user you want, but it would great that you describe with a comment in the code what privileges the PostgreSQL user and the S3 user needs to have to be able to perform the operations needed by your program.
+
+### Copyright
+All rights for content on this page belong to gonzalo@gonzalosr.com
+Direct link to the original gist https://gist.github.com/gonzalosr/309f2274e5bcce04f0a789d69faa7d60
