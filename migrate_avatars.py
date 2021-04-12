@@ -99,6 +99,7 @@ def move_legacy_names_prodS3(connection,src_bucket, dst_bucket):
         dst = s3.Bucket(dst_bucket)
         for s3_file in dst.objects.filter(Prefix=prefix_old).all():
             cpy_list.append(s3_file.key)
+        s3 = boto3.client('s3')
         def move_mp(file_key):
             new_key = re.sub(r'%s' % prefix_old, '%s' % prefix_new, file_key)
             copy_source = {
@@ -130,8 +131,6 @@ def main():
             l = list_to_copy(S3_LEGACY_BUCKET_NAME,S3_PRODUCTION_BUCKET_NAME)
             if len(l) != 0:
                 copy_files_to_prodS3(S3_LEGACY_BUCKET_NAME,S3_PRODUCTION_BUCKET_NAME,l)
-            else:
-                print("No legacy avatars to migrate!")
         except Exception as e:
             raise e
 
@@ -147,9 +146,9 @@ def main():
             legacy_avatars_count = len(legacy_avatar_ids)
             if legacy_avatars_count != 0:
                 print("There are {} legacy avatars left to migrate".format(legacy_avatars_count))
-            move_legacy_names_prodS3(db_conn,S3_LEGACY_BUCKET_NAME,S3_PRODUCTION_BUCKET_NAME)
-        else:
-            print("All legacy avatars have been already migrated!")
+                move_legacy_names_prodS3(db_conn,S3_LEGACY_BUCKET_NAME,S3_PRODUCTION_BUCKET_NAME)
+            else:
+                print("All legacy avatars have been already migrated!")
         except Exception as e:
             raise e
 
