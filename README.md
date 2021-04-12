@@ -60,7 +60,7 @@ source aws_creds.sh; \
 **5. Configure the environment (your script with a couple of modifications)**
 
 ```
-source aws_creds.sh; python3 setup_environment.py
+source aws_creds.sh; python3 setup_environment.py 100
 ```
 
 **6. Run the migration script**
