@@ -77,7 +77,7 @@ def move_legacy_names_prodS3(connection,src_bucket, dst_bucket):
     try:
         cur = connection.cursor()
         s3 = boto3.resource('s3')
-
+        pool = ThreadPool(processes=16)
         cpy_list = []
         prefix_old = "{}/image/".format(src_bucket)
         prefix_new = "{}/avatar/".format(dst_bucket)
