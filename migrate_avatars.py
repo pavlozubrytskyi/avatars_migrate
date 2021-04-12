@@ -83,3 +83,13 @@ if __name__ == "__main__":
         db_conn = psycopg2.connect(DB_CONN_STRING)
     except Exception as e:
         raise e
+
+# List and copy legacy avatars to move
+    try:
+        l = list_to_copy(S3_LEGACY_BUCKET_NAME,S3_PRODUCTION_BUCKET_NAME)
+        if len(l) != 0:
+            copy_files_to_prodS3(S3_LEGACY_BUCKET_NAME,S3_PRODUCTION_BUCKET_NAME,l)
+        else:
+            print("No legacy avatars to migrate!")
+    except Exception as e:
+        raise e
