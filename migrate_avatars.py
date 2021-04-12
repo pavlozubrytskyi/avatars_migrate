@@ -6,7 +6,6 @@ import boto3
 import re
 from multiprocessing.pool import ThreadPool
 
-
 # S3 legacy bucket name to use. It should exist and be accessible to your AWS credentials
 S3_LEGACY_BUCKET_NAME = os.getenv('S3_LEGACY_BUCKET_NAME', 'sketch-legacy-s3')
 
@@ -32,7 +31,6 @@ try:
                                 + rds_host_endpoint + '/sketchdb')
 except Exception as e:
     raise e
-
 
 # Get legacy items to copy
 def list_to_copy(src_bucket, dst_bucket):
@@ -90,5 +88,22 @@ if __name__ == "__main__":
             copy_files_to_prodS3(S3_LEGACY_BUCKET_NAME,S3_PRODUCTION_BUCKET_NAME,l)
         else:
             print("No legacy avatars to migrate!")
+    except Exception as e:
+        raise e
+
+# Move legacy avarars to production and update DB records
+    try:
+        legacy_avatar_ids = get_legacy_db_records(db_conn,
+                                                    S3_LEGACY_BUCKET_NAME,
+                                                    S3_PRODUCTION_BUCKET_NAME,
+                                                    S3_LEGACY_ENDPOINT_URL
+                                                    + '/' +
+                                                    S3_LEGACY_BUCKET_NAME
+                                                    )
+        legacy_avatars_count = len(legacy_avatar_ids)
+        if legacy_avatars_count != 0:
+            print("There are {} legacy avatars left to migrate".format(legacy_avatars_count))
+        else:
+            print("All legacy avatars have been already migrated!")
     except Exception as e:
         raise e
