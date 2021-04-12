@@ -33,3 +33,18 @@ try:
                                 + rds_host_endpoint + '/sketchdb')
 except Exception as e:
     raise e
+
+
+# Get legacy items to copy
+def list_to_copy(src_bucket, dst_bucket):
+    try:
+        s3 = boto3.resource('s3')
+        src_bucket, dst_bucket = s3.Bucket(src_bucket), s3.Bucket(dst_bucket)
+        src_list, dst_list = [], []
+        for s3_file in src_bucket.objects.all():
+            src_list.append(s3_file.key)
+        for s3_file in dst_bucket.objects.all():
+            dst_list.append(s3_file.key)
+        return list(set(src_list).difference(dst_list))
+    except Exception as e:
+        raise e
