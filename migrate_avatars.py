@@ -72,6 +72,19 @@ def get_legacy_db_records(connection,src_bucket, dst_bucket,path=None):
     except Exception as e:
         raise e
 
+# Update lecagy item paths in S3 producton and clean up
+def move_legacy_names_prodS3(connection,src_bucket, dst_bucket):
+    try:
+        cur = connection.cursor()
+        s3 = boto3.resource('s3')
+
+        cpy_list = []
+        prefix_old = "{}/image/".format(src_bucket)
+        prefix_new = "{}/avatar/".format(dst_bucket)
+        src, dst = s3.Bucket(src_bucket), s3.Bucket(dst_bucket)
+        for s3_file in dst.objects.filter(Prefix=prefix_old).all():
+            cpy_list.append(s3_file.key)
+
 def main():
     # Connect to rds DB
         try:
