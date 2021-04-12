@@ -72,38 +72,39 @@ def get_legacy_db_records(connection,src_bucket, dst_bucket,path=None):
     except Exception as e:
         raise e
 
+def main():
+    # Connect to rds DB
+        try:
+            db_conn = psycopg2.connect(DB_CONN_STRING)
+        except Exception as e:
+            raise e
+
+    # List and copy legacy avatars to move
+        try:
+            l = list_to_copy(S3_LEGACY_BUCKET_NAME,S3_PRODUCTION_BUCKET_NAME)
+            if len(l) != 0:
+                copy_files_to_prodS3(S3_LEGACY_BUCKET_NAME,S3_PRODUCTION_BUCKET_NAME,l)
+            else:
+                print("No legacy avatars to migrate!")
+        except Exception as e:
+            raise e
+
+    # Move legacy avarars to production and update DB records
+        try:
+            legacy_avatar_ids = get_legacy_db_records(db_conn,
+                                                        S3_LEGACY_BUCKET_NAME,
+                                                        S3_PRODUCTION_BUCKET_NAME,
+                                                        S3_LEGACY_ENDPOINT_URL
+                                                        + '/' +
+                                                        S3_LEGACY_BUCKET_NAME
+                                                        )
+            legacy_avatars_count = len(legacy_avatar_ids)
+            if legacy_avatars_count != 0:
+                print("There are {} legacy avatars left to migrate".format(legacy_avatars_count))
+            else:
+                print("All legacy avatars have been already migrated!")
+        except Exception as e:
+            raise e
 
 if __name__ == "__main__":
-
-# Connect to rds DB
-    try:
-        db_conn = psycopg2.connect(DB_CONN_STRING)
-    except Exception as e:
-        raise e
-
-# List and copy legacy avatars to move
-    try:
-        l = list_to_copy(S3_LEGACY_BUCKET_NAME,S3_PRODUCTION_BUCKET_NAME)
-        if len(l) != 0:
-            copy_files_to_prodS3(S3_LEGACY_BUCKET_NAME,S3_PRODUCTION_BUCKET_NAME,l)
-        else:
-            print("No legacy avatars to migrate!")
-    except Exception as e:
-        raise e
-
-# Move legacy avarars to production and update DB records
-    try:
-        legacy_avatar_ids = get_legacy_db_records(db_conn,
-                                                    S3_LEGACY_BUCKET_NAME,
-                                                    S3_PRODUCTION_BUCKET_NAME,
-                                                    S3_LEGACY_ENDPOINT_URL
-                                                    + '/' +
-                                                    S3_LEGACY_BUCKET_NAME
-                                                    )
-        legacy_avatars_count = len(legacy_avatar_ids)
-        if legacy_avatars_count != 0:
-            print("There are {} legacy avatars left to migrate".format(legacy_avatars_count))
-        else:
-            print("All legacy avatars have been already migrated!")
-    except Exception as e:
-        raise e
+    main()
