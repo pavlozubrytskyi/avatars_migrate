@@ -47,36 +47,6 @@ try:
 except Exception as e:
     raise e
 
-# Get legacy items to copy
-def list_to_copy(src_bucket, dst_bucket):
-    try:
-        s3 = boto3.resource('s3')
-        src_bucket, dst_bucket = s3.Bucket(src_bucket), s3.Bucket(dst_bucket)
-        src_list, dst_list = [], []
-        for s3_file in src_bucket.objects.all():
-            src_list.append(s3_file.key)
-        for s3_file in dst_bucket.objects.all():
-            dst_list.append(s3_file.key)
-        return list(set(src_list).difference(dst_list))
-    except Exception as e:
-        raise e
-
-# Copy legacy items as is from legacy to prod S3
-def copy_files_to_prodS3(src_bucket, dst_bucket, cpy_list):
-    try:
-        s3 = boto3.client('s3')
-        pool = ThreadPool(processes=16)
-        def copy_mp(file):
-            copy_source = {
-                'Bucket': src_bucket,
-                'Key': file
-            }
-            s3.copy_object(CopySource=copy_source, Bucket=dst_bucket, Key=file)
-            return file
-        pool.map(copy_mp, cpy_list)
-    except Exception as e:
-        raise e
-
 # Get list of legacy db records
 def get_legacy_db_records(connection,src_bucket, dst_bucket,path=None):
     try:
@@ -88,32 +58,43 @@ def get_legacy_db_records(connection,src_bucket, dst_bucket,path=None):
         raise e
 
 # Update lecagy item paths in S3 producton and clean up
-def move_legacy_names_prodS3(connection,src_bucket, dst_bucket):
+def move_legacy_names_prodS3(connection, src_bucket, dst_bucket):
     try:
         cur = connection.cursor()
         s3 = boto3.resource('s3')
-        pool = ThreadPool(processes=16)
+        pool = ThreadPool(processes=8)
         cpy_list = []
         prefix_old = "{}/image/".format(src_bucket)
         prefix_new = "{}/avatar/".format(dst_bucket)
-        dst = s3.Bucket(dst_bucket)
-        for s3_file in dst.objects.filter(Prefix=prefix_old).all():
+        src_s3 = s3.Bucket(src_bucket)
+        for s3_file in src_s3.objects.filter(Prefix=prefix_old).all():
             cpy_list.append(s3_file.key)
         s3 = boto3.client('s3')
         def move_mp(file_key):
             new_key = re.sub(r'%s' % prefix_old, '%s' % prefix_new, file_key)
             copy_source = {
-                'Bucket': dst_bucket,
+                'Bucket': src_bucket,
                 'Key': file_key
             }
-            s3.copy_object(CopySource=copy_source, Bucket=dst_bucket, Key=new_key)
+            try:
+                s3.copy_object(CopySource=copy_source, Bucket=dst_bucket, Key=new_key)
+            except Exception as e:
+                raise e
             old_db_path = S3_LEGACY_ENDPOINT_URL + '/' + file_key
             new_db_path = S3_PRODUCTION_ENDPOINT_URL + '/' + new_key
             print("UPDATE path SET = '{}' where path like '%{}%'".format(new_db_path,old_db_path))
-            cur.execute("UPDATE avatars SET path = '{}' where path like '%{}%'".format(new_db_path,old_db_path))
-            connection.commit()
-            s3.delete_object(Bucket=dst_bucket,Key=file_key)
-            s3.delete_object(Bucket=src_bucket,Key=file_key)
+            try:
+                cur.execute("UPDATE avatars SET path = '{}' where path like '%{}%'".format(new_db_path,old_db_path))
+            except Exception as e:
+                raise e
+            try:
+                connection.commit()
+            except Exception as e:
+                raise e
+            try:
+                s3.delete_object(Bucket=src_bucket,Key=file_key)
+            except Exception as e:
+                raise e
             return new_key
         pool.map(move_mp,cpy_list)
     except Exception as e:
@@ -123,14 +104,6 @@ def main():
     # Connect to rds DB
         try:
             db_conn = psycopg2.connect(DB_CONN_STRING)
-        except Exception as e:
-            raise e
-
-    # List and copy legacy avatars to move
-        try:
-            l = list_to_copy(S3_LEGACY_BUCKET_NAME,S3_PRODUCTION_BUCKET_NAME)
-            if len(l) != 0:
-                copy_files_to_prodS3(S3_LEGACY_BUCKET_NAME,S3_PRODUCTION_BUCKET_NAME,l)
         except Exception as e:
             raise e
 
